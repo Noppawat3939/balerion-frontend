@@ -1,9 +1,11 @@
-import { describe, it, expect } from "vitest";
-import {
-  calculateRemainingCredit,
-  calculateMaxQtyByCredit,
-} from "./credit-helper";
+import { describe, expect,it } from "vitest";
+
 import type { Customer } from "@/types/mock.type";
+
+import {
+  calculateMaxQtyByCredit,
+  calculateRemainingCredit,
+} from "./credit-helper";
 
 const makeCustomer = (overrides: Partial<Customer> = {}): Customer => ({
   customerId: "CT-0001",

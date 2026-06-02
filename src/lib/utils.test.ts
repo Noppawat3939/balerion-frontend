@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { cn, bankerRound, calculatePricePerUnit, formatCurrency } from "./utils";
+import { describe, expect,it } from "vitest";
+
+import { bankerRound, calculatePricePerUnit, cn, formatCurrency } from "./utils";
 
 describe("cn", () => {
   it("combines class names", () => {

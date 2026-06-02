@@ -1,7 +1,7 @@
-import type { Customer } from "@/types/mock.type"
-import { formatCurrency } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { formatCurrency } from "@/lib/utils"
+import type { Customer } from "@/types/mock.type"
 
 interface CreditSummaryPanelProps {
   customers: Customer[]

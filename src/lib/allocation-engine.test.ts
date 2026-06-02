@@ -1,6 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { allocate } from "./allocation-engine";
+import { describe, expect,it } from "vitest";
+
 import type { Customer, Order, Price, Stock } from "@/types/mock.type";
+
+import { allocate } from "./allocation-engine";
 
 // ─── Grooming spec fixtures ───────────────────────────────────────────────────
 

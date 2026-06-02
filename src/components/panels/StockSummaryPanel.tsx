@@ -1,5 +1,5 @@
-import type { Stock } from '@/types/mock.type'
 import { Badge } from '@/components/ui/badge'
+import type { Stock } from '@/types/mock.type'
 
 interface StockSummaryPanelProps {
   stocks: Stock[]

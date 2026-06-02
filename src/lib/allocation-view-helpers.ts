@@ -1,5 +1,5 @@
-import { stocks as initialStocks } from "@/mock/stocks"
 import { customers as initialCustomers } from "@/mock/customers"
+import { stocks as initialStocks } from "@/mock/stocks"
 import type { AllocationResult, Customer, Stock } from "@/types/mock.type"
 
 /**

@@ -1,9 +1,9 @@
-import { useAllocation } from "@/hooks/useAllocation";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { StockSummaryPanel } from "@/components/panels/StockSummaryPanel";
-import { CreditSummaryPanel } from "@/components/panels/CreditSummaryPanel";
 import { AllocationTable } from "@/components/panels/AllocationTable";
 import { AllocationTableSkeleton } from "@/components/panels/AllocationTableSkeleton";
+import { CreditSummaryPanel } from "@/components/panels/CreditSummaryPanel";
+import { StockSummaryPanel } from "@/components/panels/StockSummaryPanel";
+import { useAllocation } from "@/hooks/useAllocation";
 
 function App() {
   const {

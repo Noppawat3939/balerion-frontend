@@ -1,16 +1,14 @@
-import { useState } from "react";
+import type { VariantProps } from "class-variance-authority";
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import type {
-  AllocationResult,
-  Customer,
-  OrderType,
-  AllocationStatus,
-} from "@/types/mock.type";
+import { useState } from "react";
+
+import { Badge, type badgeVariants } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -19,9 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge, type badgeVariants } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import type { VariantProps } from "class-variance-authority";
+import type {
+  AllocationResult,
+  AllocationStatus,
+  Customer,
+  OrderType,
+} from "@/types/mock.type";
 
 type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
 

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react"
+
 import { allocate } from "@/lib/allocation-engine"
-import { computeRemainingStocks, computeCustomersAfterAllocation } from "@/lib/allocation-view-helpers"
-import { orders } from "@/mock/orders"
-import { stocks as initialStocks } from "@/mock/stocks"
-import { prices } from "@/mock/prices"
+import { computeCustomersAfterAllocation,computeRemainingStocks } from "@/lib/allocation-view-helpers"
 import { customers as initialCustomers } from "@/mock/customers"
+import { orders } from "@/mock/orders"
+import { prices } from "@/mock/prices"
+import { stocks as initialStocks } from "@/mock/stocks"
 import type { AllocationResult, Customer, Stock } from "@/types/mock.type"
 
 interface UseAllocationReturn {

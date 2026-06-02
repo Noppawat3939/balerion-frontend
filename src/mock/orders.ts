@@ -1,5 +1,5 @@
-import type { Order } from "@/types/mock.type";
 import { generateOrders } from "@/lib/order-helper";
+import type { Order } from "@/types/mock.type";
 
 export { generateOrders } from "@/lib/order-helper";
 
