@@ -17,11 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type {
-  AllocationResult,
+import { formatDate } from "@/lib/utils";
+import {
+  type AllocationResult,
   AllocationStatus,
-  Customer,
-  OrderType,
+  type Customer,
+  type OrderType,
 } from "@/types/mock.type";
 
 type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
@@ -35,15 +36,15 @@ const TYPE_VARIANT: Record<OrderType, BadgeVariant> = {
 };
 
 const STATUS_VARIANT: Record<AllocationStatus, BadgeVariant> = {
-  FULLY_ALLOCATED: "success",
-  PARTIALLY_ALLOCATED: "warning",
-  UNALLOCATED: "danger",
+  [AllocationStatus.FULLY_ALLOCATED]: "success",
+  [AllocationStatus.PARTIALLY_ALLOCATED]: "warning",
+  [AllocationStatus.UNALLOCATED]: "danger",
 };
 
 const STATUS_LABEL: Record<AllocationStatus, string> = {
-  FULLY_ALLOCATED: "fully",
-  PARTIALLY_ALLOCATED: "partially",
-  UNALLOCATED: "unallocated",
+  [AllocationStatus.FULLY_ALLOCATED]: "fully",
+  [AllocationStatus.PARTIALLY_ALLOCATED]: "partially",
+  [AllocationStatus.UNALLOCATED]: "unallocated",
 };
 
 function formatCurrency(amount: number): string {
@@ -88,6 +89,7 @@ export function AllocationTable({ results, customers }: AllocationTableProps) {
               <TableHead className="text-right">Total Price (฿)</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Created date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -145,6 +147,9 @@ export function AllocationTable({ results, customers }: AllocationTableProps) {
                     <Badge variant={STATUS_VARIANT[row.status]}>
                       {STATUS_LABEL[row.status]}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-gray-700">
+                    {formatDate(row.createDate)}
                   </TableCell>
                 </TableRow>
               ))

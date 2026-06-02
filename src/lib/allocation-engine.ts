@@ -5,21 +5,22 @@ import {
 } from "@/lib/credit-helper";
 import { sortingOrderByPriority } from "@/lib/order-helper";
 import { calculatePricePerUnit } from "@/lib/utils";
-import type {
-  AllocationResult,
-  Customer,
-  Order,
-  Price,
-  Stock,
+import {
+  type AllocationResult,
+  AllocationStatus,
+  type Customer,
+  type Order,
+  type Price,
+  type Stock,
 } from "@/types/mock.type";
 
 function resolveStatus(
   allocatedQty: number,
   requestQty: number,
 ): AllocationResult["status"] {
-  if (allocatedQty === 0) return "UNALLOCATED";
-  if (allocatedQty < requestQty) return "PARTIALLY_ALLOCATED";
-  return "FULLY_ALLOCATED";
+  if (allocatedQty === 0) return AllocationStatus.UNALLOCATED;
+  if (allocatedQty < requestQty) return AllocationStatus.PARTIALLY_ALLOCATED;
+  return AllocationStatus.FULLY_ALLOCATED;
 }
 
 /**
@@ -64,10 +65,9 @@ export function allocate(
 
   for (const order of sorted) {
     // Wildcard resolution uses the live (post-deduction) stock values
-    const { resolvedWarehouseId, resolvedSupplierId } = resolveWildcard(
-      order,
-      [...stockMap.values()],
-    );
+    const { resolvedWarehouseId, resolvedSupplierId } = resolveWildcard(order, [
+      ...stockMap.values(),
+    ]);
 
     const stockKey = `${resolvedWarehouseId}|${resolvedSupplierId}|${order.itemId}`;
     const stock = stockMap.get(stockKey);
@@ -116,6 +116,7 @@ export function allocate(
       unitPrice,
       totalPrice,
       status: resolveStatus(allocatedQty, order.requestQty),
+      createDate: order.createDate,
     });
   }
 
