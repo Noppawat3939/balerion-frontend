@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cn, bankerRound } from "./utils";
+import { cn, bankerRound, calculatePricePerUnit, formatCurrency } from "./utils";
 
 describe("cn", () => {
   it("combines class names", () => {
@@ -75,5 +75,55 @@ describe("bankerRound", () => {
       expect(bankerRound(-1.125)).toBe(-1.12); // 2 is even → toward zero
       expect(bankerRound(-1.135)).toBe(-1.14); // 3 is odd → away from zero
     });
+  });
+});
+
+describe("calculatePricePerUnit", () => {
+  it("multiplies basePrice by multiplier and applies banker's rounding", () => {
+    // 123.49 × 1.20 = 148.188 → rounds up (8 > 5)
+    expect(calculatePricePerUnit(123.49, 1.2)).toBe(148.19);
+    // 123.49 × 1.00 = 123.49 → no change
+    expect(calculatePricePerUnit(123.49, 1.0)).toBe(123.49);
+    // 123.49 × 0.90 = 111.141 → rounds down (1 < 5)
+    expect(calculatePricePerUnit(123.49, 0.9)).toBe(111.14);
+  });
+
+  it("handles OVERDUE multiplier (1.00) — returns basePrice unchanged", () => {
+    expect(calculatePricePerUnit(98.75, 1.0)).toBe(98.75);
+    expect(calculatePricePerUnit(76.0, 1.0)).toBe(76.0);
+  });
+
+  it("handles DAILY multiplier (0.90) — discount pricing", () => {
+    // 76.00 × 0.90 = 68.40
+    expect(calculatePricePerUnit(76.0, 0.9)).toBe(68.4);
+    // 65.50 × 0.90 = 58.95
+    expect(calculatePricePerUnit(65.5, 0.9)).toBe(58.95);
+  });
+
+  it("handles zero basePrice", () => {
+    expect(calculatePricePerUnit(0, 1.2)).toBe(0);
+  });
+});
+
+describe("formatCurrency", () => {
+  it("formats positive amount as Thai Baht", () => {
+    const result = formatCurrency(1000);
+    expect(result).toContain("1,000");
+    expect(result).toMatch(/฿|THB|บาท/);
+  });
+
+  it("formats zero", () => {
+    const result = formatCurrency(0);
+    expect(result).toContain("0.00");
+  });
+
+  it("formats decimal amounts with 2 decimal places", () => {
+    const result = formatCurrency(123.49);
+    expect(result).toContain("123.49");
+  });
+
+  it("formats large amounts with thousand separators", () => {
+    const result = formatCurrency(50000);
+    expect(result).toContain("50,000");
   });
 });
