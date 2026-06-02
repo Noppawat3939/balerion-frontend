@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { ManualAllocationModal } from "@/components/panels/ManualAllocationModal";
 import { Badge, type badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ import {
   AllocationStatus,
   type Customer,
   type OrderType,
+  type Stock,
 } from "@/types/mock.type";
 
 type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
@@ -57,9 +59,16 @@ function formatCurrency(amount: number): string {
 interface AllocationTableProps {
   results: AllocationResult[];
   customers: Customer[];
+  liveStocks: Stock[];
+  onUpdateAllocatedQty: (subOrderId: string, newQty: number) => void;
 }
 
-export function AllocationTable({ results, customers }: AllocationTableProps) {
+export function AllocationTable({
+  results,
+  customers,
+  liveStocks,
+  onUpdateAllocatedQty,
+}: AllocationTableProps) {
   const [page, setPage] = useState(1);
 
   const customerMap = new Map(customers.map((c) => [c.customerId, c.name]));
@@ -90,13 +99,14 @@ export function AllocationTable({ results, customers }: AllocationTableProps) {
               <TableHead>Customer</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created date</TableHead>
+              <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {results.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={11}
+                  colSpan={13}
                   className="py-12 text-center text-muted-foreground"
                 >
                   ไม่มีข้อมูล allocation
@@ -150,6 +160,14 @@ export function AllocationTable({ results, customers }: AllocationTableProps) {
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-gray-700">
                     {formatDate(row.createDate)}
+                  </TableCell>
+                  <TableCell>
+                    <ManualAllocationModal
+                      row={row}
+                      liveStocks={liveStocks}
+                      liveCustomers={customers}
+                      onUpdate={onUpdateAllocatedQty}
+                    />
                   </TableCell>
                 </TableRow>
               ))

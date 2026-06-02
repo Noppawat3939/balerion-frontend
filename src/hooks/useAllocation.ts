@@ -24,6 +24,7 @@ interface UseAllocationReturn {
   totalOrders: number;
   allocated: number;
   pending: number;
+  updateAllocatedQty: (subOrderId: string, newQty: number) => void;
 }
 
 export function useAllocation(): UseAllocationReturn {
@@ -60,6 +61,22 @@ export function useAllocation(): UseAllocationReturn {
     (r) => r.status !== AllocationStatus.FULLY_ALLOCATED,
   ).length;
 
+  function updateAllocatedQty(subOrderId: string, newQty: number) {
+    setAllocationResults((prev) =>
+      prev.map((r) => {
+        if (r.subOrderId !== subOrderId) return r;
+        const totalPrice = newQty * r.unitPrice;
+        const status =
+          newQty === 0
+            ? AllocationStatus.UNALLOCATED
+            : newQty < r.requestQty
+              ? AllocationStatus.PARTIALLY_ALLOCATED
+              : AllocationStatus.FULLY_ALLOCATED;
+        return { ...r, allocatedQty: newQty, totalPrice, status };
+      }),
+    );
+  }
+
   return {
     isLoading,
     allocationResults,
@@ -68,5 +85,6 @@ export function useAllocation(): UseAllocationReturn {
     totalOrders,
     allocated,
     pending,
+    updateAllocatedQty,
   };
 }

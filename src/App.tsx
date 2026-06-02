@@ -14,6 +14,7 @@ function App() {
     totalOrders,
     allocated,
     pending,
+    updateAllocatedQty,
   } = useAllocation();
 
   return (
@@ -31,6 +32,8 @@ function App() {
             <AllocationTable
               results={allocationResults}
               customers={liveCustomers}
+              liveStocks={liveStocks}
+              onUpdateAllocatedQty={updateAllocatedQty}
             />
           )}
         </main>
