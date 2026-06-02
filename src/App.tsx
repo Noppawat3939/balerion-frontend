@@ -1,36 +1,46 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "./assets/vite.svg";
-import heroImg from "./assets/hero.png";
-import "./App.css";
-import { Button } from "./components/ui/button";
+import { useAllocation } from "@/hooks/useAllocation";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StockSummaryPanel } from "@/components/panels/StockSummaryPanel";
+import { CreditSummaryPanel } from "@/components/panels/CreditSummaryPanel";
+import { AllocationTable } from "@/components/panels/AllocationTable";
+import { AllocationTableSkeleton } from "@/components/panels/AllocationTableSkeleton";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const {
+    isLoading,
+    allocationResults,
+    liveStocks,
+    liveCustomers,
+    totalOrders,
+    allocated,
+    pending,
+  } = useAllocation();
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <Button
-          size="lg"
-          type="button"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </Button>
-      </section>
-    </>
+    <div className="h-screen flex flex-col bg-gray-50">
+      <PageHeader
+        totalOrders={totalOrders}
+        allocated={allocated}
+        pending={pending}
+      />
+      <div className="flex-1 flex overflow-hidden">
+        <main className="flex-1 overflow-hidden flex flex-col p-6 gap-3">
+          {isLoading ? (
+            <AllocationTableSkeleton />
+          ) : (
+            <AllocationTable
+              results={allocationResults}
+              customers={liveCustomers}
+            />
+          )}
+        </main>
+        <aside className="w-72 border-l bg-white p-4 flex flex-col gap-5 shrink-0">
+          <StockSummaryPanel stocks={liveStocks} />
+          <div className="border-t border-gray-100" />
+          <CreditSummaryPanel customers={liveCustomers} />
+        </aside>
+      </div>
+    </div>
   );
 }
 

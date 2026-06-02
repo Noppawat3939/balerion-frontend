@@ -1,7 +1,9 @@
 import type { Order } from "@/types/mock.type";
+import { generateOrders } from "@/lib/order-helper";
+
 export { generateOrders } from "@/lib/order-helper";
 
-export const orders: Order[] = [
+const BASE_ORDERS: Order[] = [
   {
     orderId: "ORDER-0001",
     subOrderId: "ORDER-0001-001",
@@ -63,3 +65,5 @@ export const orders: Order[] = [
     remark: "",
   },
 ];
+
+export const orders: Order[] = [...BASE_ORDERS, ...generateOrders(6000)];
