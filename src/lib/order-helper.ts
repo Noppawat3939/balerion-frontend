@@ -14,7 +14,10 @@ function randomDate(start: Date, end: Date): string {
   const d = new Date(
     start.getTime() + Math.random() * (end.getTime() - start.getTime()),
   );
-  return d.toISOString().split("T")[0];
+  const date = d.toISOString().split("T")[0];
+  const hour = String(Math.floor(Math.random() * 24)).padStart(2, "0");
+  const minute = String(Math.floor(Math.random() * 60)).padStart(2, "0");
+  return `${date}T${hour}:${minute}`;
 }
 
 export function generateOrders(count: number): Order[] {

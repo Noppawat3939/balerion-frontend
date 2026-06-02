@@ -1,6 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { resolveWildcard } from "./allocation-helper";
+import { describe, expect,it } from "vitest";
+
 import type { Order, Stock } from "@/types/mock.type";
+
+import { resolveWildcard } from "./allocation-helper";
 
 const makeOrder = (overrides: Partial<Order> = {}): Order => ({
   orderId: "ORDER-0001",

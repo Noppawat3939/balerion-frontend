@@ -1,6 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect,it } from "vitest";
+
+import {
+  AllocationStatus,
+  type Customer,
+  type Order,
+  type Price,
+  type Stock,
+} from "@/types/mock.type";
+
 import { allocate } from "./allocation-engine";
-import type { Customer, Order, Price, Stock } from "@/types/mock.type";
 
 // ─── Grooming spec fixtures ───────────────────────────────────────────────────
 
@@ -195,7 +203,7 @@ describe("T-10 — credit limit not exceeded", () => {
     const results = allocate([order], STOCKS, PRICES, [tightCustomer]);
     // unitPrice = bankerRound(123.49 * 0.9) = 111.14, remaining = 0.01 → maxQtyByCredit = 0
     expect(results[0].allocatedQty).toBe(0);
-    expect(results[0].status).toBe("UNALLOCATED");
+    expect(results[0].status).toBe(AllocationStatus.UNALLOCATED);
   });
 });
 
@@ -238,7 +246,7 @@ describe("T-10 — stock never goes negative", () => {
     };
     const results = allocate([order], [limitedStock], PRICES, CUSTOMERS);
     expect(results[0].allocatedQty).toBe(5);
-    expect(results[0].status).toBe("PARTIALLY_ALLOCATED");
+    expect(results[0].status).toBe(AllocationStatus.PARTIALLY_ALLOCATED);
   });
 });
 
@@ -278,35 +286,35 @@ describe("T-10 — full allocation correctness with grooming data", () => {
     const r = runAllocate();
     expect(r["ORDER-0002-001"].allocatedQty).toBe(300);
     expect(r["ORDER-0002-001"].totalPrice).toBeCloseTo(35550, 2);
-    expect(r["ORDER-0002-001"].status).toBe("FULLY_ALLOCATED");
+    expect(r["ORDER-0002-001"].status).toBe(AllocationStatus.FULLY_ALLOCATED);
   });
 
   it("ORDER-0002-002: fully allocated 100 units at 91.2 each", () => {
     const r = runAllocate();
     expect(r["ORDER-0002-002"].allocatedQty).toBe(100);
     expect(r["ORDER-0002-002"].totalPrice).toBeCloseTo(9120, 2);
-    expect(r["ORDER-0002-002"].status).toBe("FULLY_ALLOCATED");
+    expect(r["ORDER-0002-002"].status).toBe(AllocationStatus.FULLY_ALLOCATED);
   });
 
   it("ORDER-0003-001: fully allocated 50 units at 123.49 each", () => {
     const r = runAllocate();
     expect(r["ORDER-0003-001"].allocatedQty).toBe(50);
     expect(r["ORDER-0003-001"].totalPrice).toBeCloseTo(6174.5, 2);
-    expect(r["ORDER-0003-001"].status).toBe("FULLY_ALLOCATED");
+    expect(r["ORDER-0003-001"].status).toBe(AllocationStatus.FULLY_ALLOCATED);
   });
 
   it("ORDER-0001-001: fully allocated 11 units at 111.14 each", () => {
     const r = runAllocate();
     expect(r["ORDER-0001-001"].allocatedQty).toBe(11);
     expect(r["ORDER-0001-001"].totalPrice).toBeCloseTo(1222.54, 2);
-    expect(r["ORDER-0001-001"].status).toBe("FULLY_ALLOCATED");
+    expect(r["ORDER-0001-001"].status).toBe(AllocationStatus.FULLY_ALLOCATED);
   });
 
   it("ORDER-0001-002: fully allocated 20 units at 68.4 each", () => {
     const r = runAllocate();
     expect(r["ORDER-0001-002"].allocatedQty).toBe(20);
     expect(r["ORDER-0001-002"].totalPrice).toBeCloseTo(1368, 2);
-    expect(r["ORDER-0001-002"].status).toBe("FULLY_ALLOCATED");
+    expect(r["ORDER-0001-002"].status).toBe(AllocationStatus.FULLY_ALLOCATED);
   });
 });
 
@@ -335,7 +343,7 @@ describe("T-10 — edge cases", () => {
     };
     const results = allocate([order], zeroStock, PRICES, CUSTOMERS);
     expect(results[0].allocatedQty).toBe(0);
-    expect(results[0].status).toBe("UNALLOCATED");
+    expect(results[0].status).toBe(AllocationStatus.UNALLOCATED);
   });
 
   it("credit = 0 → UNALLOCATED with allocatedQty = 0", () => {
@@ -356,7 +364,7 @@ describe("T-10 — edge cases", () => {
     };
     const results = allocate([order], STOCKS, PRICES, zeroCredit);
     expect(results[0].allocatedQty).toBe(0);
-    expect(results[0].status).toBe("UNALLOCATED");
+    expect(results[0].status).toBe(AllocationStatus.UNALLOCATED);
   });
 
   it("no price entry found → unitPrice = 0, UNALLOCATED", () => {
@@ -375,7 +383,7 @@ describe("T-10 — edge cases", () => {
     const results = allocate([order], STOCKS, PRICES, CUSTOMERS);
     expect(results[0].unitPrice).toBe(0);
     expect(results[0].allocatedQty).toBe(0);
-    expect(results[0].status).toBe("UNALLOCATED");
+    expect(results[0].status).toBe(AllocationStatus.UNALLOCATED);
   });
 
   it("all orders with WH-000 + SP-000 wildcards → resolves correctly and allocates", () => {
@@ -410,7 +418,7 @@ describe("T-10 — edge cases", () => {
     };
     const results = allocate([order], smallStock, PRICES, CUSTOMERS);
     expect(results[0].allocatedQty).toBe(3);
-    expect(results[0].status).toBe("PARTIALLY_ALLOCATED");
+    expect(results[0].status).toBe(AllocationStatus.PARTIALLY_ALLOCATED);
   });
 
   it("does not mutate the original orders, stocks, prices, or customers arrays", () => {
@@ -461,10 +469,10 @@ describe("T-10 — edge cases", () => {
     const byId = Object.fromEntries(results.map((r) => [r.subOrderId, r]));
     // First order (older date = higher priority) gets full 10
     expect(byId["ORDER-A-001"].allocatedQty).toBe(10);
-    expect(byId["ORDER-A-001"].status).toBe("FULLY_ALLOCATED");
+    expect(byId["ORDER-A-001"].status).toBe(AllocationStatus.FULLY_ALLOCATED);
     // Second order only gets remaining 5
     expect(byId["ORDER-B-001"].allocatedQty).toBe(5);
-    expect(byId["ORDER-B-001"].status).toBe("PARTIALLY_ALLOCATED");
+    expect(byId["ORDER-B-001"].status).toBe(AllocationStatus.PARTIALLY_ALLOCATED);
     // Total never exceeds original stock
     expect(byId["ORDER-A-001"].allocatedQty + byId["ORDER-B-001"].allocatedQty).toBeLessThanOrEqual(15);
   });

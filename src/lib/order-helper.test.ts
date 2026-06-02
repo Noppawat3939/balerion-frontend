@@ -1,6 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { generateOrders, sortingOrderByPriority } from "./order-helper";
+import { describe, expect,it } from "vitest";
+
 import type { Order } from "@/types/mock.type";
+
+import { generateOrders, sortingOrderByPriority } from "./order-helper";
 
 const makeOrder = (overrides: Partial<Order> = {}): Order => ({
   orderId: "ORDER-0001",

@@ -2,7 +2,13 @@ export type OrderType = "EMERGENCY" | "OVERDUE" | "DAILY";
 
 export type PriceTier = "EMERGENCY" | "OVERDUE" | "DAILY";
 
-export type AllocationStatus = "FULLY_ALLOCATED" | "PARTIALLY_ALLOCATED" | "UNALLOCATED";
+export const AllocationStatus = {
+  FULLY_ALLOCATED: "FULLY_ALLOCATED",
+  PARTIALLY_ALLOCATED: "PARTIALLY_ALLOCATED",
+  UNALLOCATED: "UNALLOCATED",
+} as const;
+
+export type AllocationStatus = (typeof AllocationStatus)[keyof typeof AllocationStatus];
 
 export interface Order {
   orderId: string;
@@ -52,4 +58,5 @@ export interface AllocationResult {
   unitPrice: number;
   totalPrice: number;
   status: AllocationStatus;
+  createDate: string;
 }
