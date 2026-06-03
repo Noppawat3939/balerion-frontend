@@ -23,7 +23,6 @@ type Tab = "config" | "results"
 
 interface WhatIfModalProps {
   open: boolean
-  onClose: () => void
   stockDeltas: Record<string, number>
   creditOverrides: Record<string, number>
   extraOrders: WhatIfExtraOrder[]
@@ -78,7 +77,6 @@ function SummaryBar({ summary }: { summary: WhatIfSimSummary }) {
 
 export function WhatIfModal({
   open,
-  onClose,
   stockDeltas,
   creditOverrides,
   extraOrders,
