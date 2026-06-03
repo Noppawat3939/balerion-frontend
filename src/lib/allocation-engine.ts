@@ -4,7 +4,7 @@ import {
   calculateRemainingCredit,
 } from "@/lib/credit-helper";
 import { sortingOrderByPriority } from "@/lib/order-helper";
-import { calculatePricePerUnit } from "@/lib/utils";
+import { bankerRound, calculatePricePerUnit } from "@/lib/utils";
 import {
   type AllocationResult,
   AllocationStatus,
@@ -95,7 +95,7 @@ export function allocate(
         ? Math.min(order.requestQty, availableStock, maxQtyByCredit)
         : 0;
 
-    const totalPrice = allocatedQty * unitPrice;
+    const totalPrice = bankerRound(allocatedQty * unitPrice);
 
     if (stock && allocatedQty > 0) {
       stock.availableStock -= allocatedQty;

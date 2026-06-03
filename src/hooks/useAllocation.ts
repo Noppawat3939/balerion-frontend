@@ -5,6 +5,7 @@ import {
   computeCustomersAfterAllocation,
   computeRemainingStocks,
 } from "@/lib/allocation-view-helpers";
+import { bankerRound } from "@/lib/utils";
 import { customers as initialCustomers } from "@/mock/customers";
 import { orders } from "@/mock/orders";
 import { prices } from "@/mock/prices";
@@ -16,6 +17,16 @@ import {
   type Stock,
 } from "@/types/mock.type";
 
+export interface AllocationSummaryStats {
+  totalOrders: number;
+  totalRequested: number;
+  totalAllocated: number;
+  fulfillmentRate: number;
+  fullyAllocated: number;
+  partiallyAllocated: number;
+  unallocated: number;
+}
+
 interface UseAllocationReturn {
   isLoading: boolean;
   allocationResults: AllocationResult[];
@@ -24,8 +35,11 @@ interface UseAllocationReturn {
   totalOrders: number;
   allocated: number;
   pending: number;
+  summaryStats: AllocationSummaryStats;
   updateAllocatedQty: (subOrderId: string, newQty: number) => void;
   updateCreditLimit: (customerId: string, newLimit: number) => void;
+  resetAndReallocate: () => void;
+  applyExternalResults: (results: AllocationResult[], creditOverrides?: Record<string, number>) => void;
 }
 
 const CUSTOMER_CREDIT_LIMIT_KEY = "customCreditLimits" as const;
@@ -72,14 +86,47 @@ export function useAllocation(): UseAllocationReturn {
     );
   }, [allocationResults, customCreditLimits]);
 
-  const { totalOrders, allocated, pending } = useMemo(() => {
+  const { totalOrders, allocated, pending, summaryStats } = useMemo(() => {
     let allocated = 0;
     let pending = 0;
+    let totalRequested = 0;
+    let totalAllocated = 0;
+    let fullyAllocated = 0;
+    let partiallyAllocated = 0;
+    let unallocated = 0;
     for (const r of allocationResults) {
-      if (r.status === AllocationStatus.FULLY_ALLOCATED) allocated++;
-      else pending++;
+      totalRequested += r.requestQty;
+      totalAllocated += r.allocatedQty;
+      if (r.status === AllocationStatus.FULLY_ALLOCATED) {
+        allocated++;
+        fullyAllocated++;
+      } else if (r.status === AllocationStatus.PARTIALLY_ALLOCATED) {
+        pending++;
+        partiallyAllocated++;
+      } else {
+        pending++;
+        unallocated++;
+      }
     }
-    return { totalOrders: allocationResults.length, allocated, pending };
+    const fulfillmentRate =
+      totalRequested > 0
+        ? Math.round((totalAllocated / totalRequested) * 100 * 10) / 10
+        : 0;
+    const summaryStats: AllocationSummaryStats = {
+      totalOrders: allocationResults.length,
+      totalRequested,
+      totalAllocated,
+      fulfillmentRate,
+      fullyAllocated,
+      partiallyAllocated,
+      unallocated,
+    };
+    return {
+      totalOrders: allocationResults.length,
+      allocated,
+      pending,
+      summaryStats,
+    };
   }, [allocationResults]);
 
   function updateCreditLimit(customerId: string, newLimit: number) {
@@ -97,7 +144,7 @@ export function useAllocation(): UseAllocationReturn {
     setAllocationResults((prev) =>
       prev.map((r) => {
         if (r.subOrderId !== subOrderId) return r;
-        const totalPrice = newQty * r.unitPrice;
+        const totalPrice = bankerRound(newQty * r.unitPrice);
         const status =
           newQty === 0
             ? AllocationStatus.UNALLOCATED
@@ -109,6 +156,35 @@ export function useAllocation(): UseAllocationReturn {
     );
   }
 
+  function resetAndReallocate() {
+    setIsLoading(true);
+    const id = setTimeout(() => {
+      const customersForReset = initialCustomers.map((c) => ({
+        ...c,
+        creditLimit: customCreditLimits[c.customerId] ?? c.creditLimit,
+        usedCredit: 0,
+      }));
+      const results = allocate(orders, initialStocks, prices, customersForReset);
+      setAllocationResults(results);
+      setIsLoading(false);
+    }, 0);
+    return () => clearTimeout(id);
+  }
+
+  function applyExternalResults(
+    results: AllocationResult[],
+    creditOverrides?: Record<string, number>,
+  ) {
+    setAllocationResults(results);
+    if (creditOverrides) {
+      setCustomCreditLimits((prev) => {
+        const updated = { ...prev, ...creditOverrides };
+        sessionStorage.setItem(CUSTOMER_CREDIT_LIMIT_KEY, JSON.stringify(updated));
+        return updated;
+      });
+    }
+  }
+
   return {
     allocated,
     allocationResults,
@@ -116,8 +192,11 @@ export function useAllocation(): UseAllocationReturn {
     isLoading,
     pending,
     stocks,
+    summaryStats,
     totalOrders,
     updateAllocatedQty,
     updateCreditLimit,
+    resetAndReallocate,
+    applyExternalResults,
   };
 }
