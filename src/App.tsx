@@ -27,7 +27,7 @@ function App() {
   const whatIf = useWhatIf();
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-gray-50 min-w-7xl">
       <PageHeader
         totalOrders={totalOrders}
         allocated={allocated}
@@ -69,7 +69,6 @@ function App() {
 
       <WhatIfModal
         open={whatIf.isOpen}
-        onClose={whatIf.closeWhatIf}
         stockDeltas={whatIf.stockDeltas}
         creditOverrides={whatIf.creditOverrides}
         extraOrders={whatIf.extraOrders}
@@ -83,8 +82,8 @@ function App() {
         onAddExtraOrder={whatIf.addExtraOrder}
         onRemoveExtraOrder={whatIf.removeExtraOrder}
         onSimulate={whatIf.simulate}
-        onApply={(results, creditOvr) => {
-          whatIf.applySimulation((r, co) => applyExternalResults(r, co));
+        onApply={() => {
+          whatIf.applySimulation(applyExternalResults);
         }}
         onDiscard={whatIf.discardSimulation}
       />
