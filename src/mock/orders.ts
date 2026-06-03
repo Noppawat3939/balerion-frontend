@@ -20,7 +20,7 @@ const baseOrders: Order[] = [
     itemId: "Item-1",
     warehouseId: "WH-001",
     supplierId: "SP-001",
-    requestQty: 50,
+    requestQty: 1200,
     type: "EMERGENCY",
     createDate: "2025-01-01T08:15",
     customerId: "CT-0001",
@@ -68,7 +68,7 @@ const baseOrders: Order[] = [
     itemId: "Item-1",
     warehouseId: "WH-002",
     supplierId: "SP-002",
-    requestQty: 10,
+    requestQty: 725,
     type: "DAILY",
     createDate: "2025-01-06T11:08",
     customerId: "CT-0001",
@@ -88,4 +88,4 @@ const baseOrders: Order[] = [
   },
 ];
 
-export const orders: Order[] = [...baseOrders, ...generateOrders(5200)];
+export const orders: Order[] = [...baseOrders, ...generateOrders(10)];
