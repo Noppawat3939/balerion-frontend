@@ -2,6 +2,8 @@
 
 ระบบ UI สำหรับจัดสรรปลาแซลมอนจาก Supplier/Warehouse ไปยัง Order ของลูกค้า โดย Stock มีจำกัด และแบ่งตาม Business Rules ที่กำหนด
 
+**Live Demo:** https://noppawat3939.github.io/balerion-frontend/
+
 ---
 
 ## Tech Stack
