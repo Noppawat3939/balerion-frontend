@@ -86,7 +86,7 @@ export function AllocationTable({
       <div className="rounded-lg border border-gray-200 bg-white flex-1 overflow-auto min-h-0">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50 text-xs uppercase tracking-wide">
+            <TableRow className="bg-gray-50 text-xs tracking-wide">
               <TableHead>Sub Order ID</TableHead>
               <TableHead>Item</TableHead>
               <TableHead>Warehouse</TableHead>
@@ -126,23 +126,18 @@ export function AllocationTable({
                     {row.resolvedSupplierId}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={TYPE_VARIANT[row.type]}>{row.type}</Badge>
+                    <Badge
+                      className="lowercase"
+                      variant={TYPE_VARIANT[row.type]}
+                    >
+                      {row.type}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-gray-700">
                     {row.requestQty.toLocaleString()}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold">
-                    <span
-                      className={
-                        row.allocatedQty === 0
-                          ? "text-red-600"
-                          : row.allocatedQty < row.requestQty
-                            ? "text-orange-600"
-                            : "text-gray-900"
-                      }
-                    >
-                      {row.allocatedQty.toLocaleString()}
-                    </span>
+                  <TableCell className="text-right tabular-nums">
+                    {row.allocatedQty.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-gray-700">
                     {formatCurrency(row.unitPrice)}
