@@ -35,7 +35,14 @@ export function useAllocation(): UseAllocationReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [customCreditLimits, setCustomCreditLimits] = useState<
     Record<string, number>
-  >({});
+  >(() => {
+    try {
+      const stored = sessionStorage.getItem("customCreditLimits");
+      return stored ? (JSON.parse(stored) as Record<string, number>) : {};
+    } catch {
+      return {};
+    }
+  });
 
   useEffect(() => {
     // defer allocate() so React paints the skeleton before the computation runs
@@ -74,7 +81,11 @@ export function useAllocation(): UseAllocationReturn {
   ).length;
 
   function updateCreditLimit(customerId: string, newLimit: number) {
-    setCustomCreditLimits((prev) => ({ ...prev, [customerId]: newLimit }));
+    setCustomCreditLimits((prev) => {
+      const next = { ...prev, [customerId]: newLimit };
+      sessionStorage.setItem("customCreditLimits", JSON.stringify(next));
+      return next;
+    });
   }
 
   function updateAllocatedQty(subOrderId: string, newQty: number) {
