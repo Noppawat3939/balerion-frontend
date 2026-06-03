@@ -19,19 +19,32 @@ import {
 interface UseAllocationReturn {
   isLoading: boolean;
   allocationResults: AllocationResult[];
-  liveStocks: Stock[];
-  liveCustomers: Customer[];
+  stocks: Stock[];
+  customers: Customer[];
   totalOrders: number;
   allocated: number;
   pending: number;
   updateAllocatedQty: (subOrderId: string, newQty: number) => void;
+  updateCreditLimit: (customerId: string, newLimit: number) => void;
 }
+
+const CUSTOMER_CREDIT_LIMIT_KEY = "customCreditLimits" as const;
 
 export function useAllocation(): UseAllocationReturn {
   const [allocationResults, setAllocationResults] = useState<
     AllocationResult[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [customCreditLimits, setCustomCreditLimits] = useState<
+    Record<string, number>
+  >(() => {
+    try {
+      const stored = sessionStorage.getItem(CUSTOMER_CREDIT_LIMIT_KEY);
+      return stored ? (JSON.parse(stored) as Record<string, number>) : {};
+    } catch {
+      return {};
+    }
+  });
 
   useEffect(() => {
     // defer allocate() so React paints the skeleton before the computation runs
@@ -44,22 +57,41 @@ export function useAllocation(): UseAllocationReturn {
     return () => clearTimeout(id);
   }, []);
 
-  const liveStocks = useMemo(
+  const stocks = useMemo(
     () => computeRemainingStocks(allocationResults),
     [allocationResults],
   );
-  const liveCustomers = useMemo(
-    () => computeCustomersAfterAllocation(allocationResults),
-    [allocationResults],
-  );
+
+  const customers = useMemo(() => {
+    const base = computeCustomersAfterAllocation(allocationResults);
+    if (Object.keys(customCreditLimits).length === 0) return base;
+    return base.map((c) =>
+      customCreditLimits[c.customerId] !== undefined
+        ? { ...c, creditLimit: customCreditLimits[c.customerId] }
+        : c,
+    );
+  }, [allocationResults, customCreditLimits]);
 
   const totalOrders = allocationResults.length;
+
   const allocated = allocationResults.filter(
     (r) => r.status === AllocationStatus.FULLY_ALLOCATED,
   ).length;
+
   const pending = allocationResults.filter(
     (r) => r.status !== AllocationStatus.FULLY_ALLOCATED,
   ).length;
+
+  function updateCreditLimit(customerId: string, newLimit: number) {
+    setCustomCreditLimits((prev) => {
+      const updated = { ...prev, [customerId]: newLimit };
+      sessionStorage.setItem(
+        CUSTOMER_CREDIT_LIMIT_KEY,
+        JSON.stringify(updated),
+      );
+      return updated;
+    });
+  }
 
   function updateAllocatedQty(subOrderId: string, newQty: number) {
     setAllocationResults((prev) =>
@@ -78,13 +110,14 @@ export function useAllocation(): UseAllocationReturn {
   }
 
   return {
-    isLoading,
-    allocationResults,
-    liveStocks,
-    liveCustomers,
-    totalOrders,
     allocated,
+    allocationResults,
+    customers,
+    isLoading,
     pending,
+    stocks,
+    totalOrders,
     updateAllocatedQty,
+    updateCreditLimit,
   };
 }

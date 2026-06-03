@@ -56,17 +56,86 @@ function formatCurrency(amount: number): string {
   });
 }
 
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  rangeStart: number;
+  rangeEnd: number;
+  totalResults: number;
+  onPageChange: (page: number) => void;
+}
+
+function Pagination({
+  currentPage,
+  totalPages,
+  rangeStart,
+  rangeEnd,
+  totalResults,
+  onPageChange,
+}: PaginationProps) {
+  return (
+    <div className="flex items-center justify-between px-1">
+      <p className="text-xs text-muted-foreground">
+        {totalResults === 0
+          ? "ไม่มีข้อมูล"
+          : `แสดง ${rangeStart.toLocaleString()}–${rangeEnd.toLocaleString()} จาก ${totalResults.toLocaleString()} รายการ`}
+      </p>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="icon-sm"
+          onClick={() => onPageChange(1)}
+          disabled={currentPage === 1}
+          aria-label="หน้าแรก"
+        >
+          <ChevronsLeft />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon-sm"
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          aria-label="หน้าก่อนหน้า"
+        >
+          <ChevronLeft />
+        </Button>
+        <span className="px-3 text-xs text-gray-600">
+          {currentPage} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="icon-sm"
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+          aria-label="หน้าถัดไป"
+        >
+          <ChevronRight />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon-sm"
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage === totalPages}
+          aria-label="หน้าสุดท้าย"
+        >
+          <ChevronsRight />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 interface AllocationTableProps {
   results: AllocationResult[];
   customers: Customer[];
-  liveStocks: Stock[];
+  stocks: Stock[];
   onUpdateAllocatedQty: (subOrderId: string, newQty: number) => void;
 }
 
 export function AllocationTable({
   results,
   customers,
-  liveStocks,
+  stocks,
   onUpdateAllocatedQty,
 }: AllocationTableProps) {
   const [page, setPage] = useState(1);
@@ -86,7 +155,7 @@ export function AllocationTable({
       <div className="rounded-lg border border-gray-200 bg-white flex-1 overflow-auto min-h-0">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50 text-xs uppercase tracking-wide">
+            <TableRow className="bg-gray-50 text-xs tracking-wide">
               <TableHead>Sub Order ID</TableHead>
               <TableHead>Item</TableHead>
               <TableHead>Warehouse</TableHead>
@@ -99,7 +168,9 @@ export function AllocationTable({
               <TableHead>Customer</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created date</TableHead>
-              <TableHead className="w-12" />
+              <TableHead className="w-12 sticky right-0 bg-gray-50 text-center">
+                Action
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -126,23 +197,18 @@ export function AllocationTable({
                     {row.resolvedSupplierId}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={TYPE_VARIANT[row.type]}>{row.type}</Badge>
+                    <Badge
+                      className="lowercase"
+                      variant={TYPE_VARIANT[row.type]}
+                    >
+                      {row.type}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-gray-700">
                     {row.requestQty.toLocaleString()}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold">
-                    <span
-                      className={
-                        row.allocatedQty === 0
-                          ? "text-red-600"
-                          : row.allocatedQty < row.requestQty
-                            ? "text-orange-600"
-                            : "text-gray-900"
-                      }
-                    >
-                      {row.allocatedQty.toLocaleString()}
-                    </span>
+                  <TableCell className="text-right tabular-nums">
+                    {row.allocatedQty.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-gray-700">
                     {formatCurrency(row.unitPrice)}
@@ -161,11 +227,11 @@ export function AllocationTable({
                   <TableCell className="text-right tabular-nums text-gray-700">
                     {formatDate(row.createDate)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="sticky right-0 bg-white">
                     <ManualAllocationModal
                       row={row}
-                      liveStocks={liveStocks}
-                      liveCustomers={customers}
+                      stocks={stocks}
+                      customers={customers}
                       onUpdate={onUpdateAllocatedQty}
                     />
                   </TableCell>
@@ -176,54 +242,14 @@ export function AllocationTable({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between px-1">
-        <p className="text-xs text-muted-foreground">
-          {results.length === 0
-            ? "ไม่มีข้อมูล"
-            : `แสดง ${rangeStart.toLocaleString()}–${rangeEnd.toLocaleString()} จาก ${results.length.toLocaleString()} รายการ`}
-        </p>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={() => setPage(1)}
-            disabled={currentPage === 1}
-            aria-label="หน้าแรก"
-          >
-            <ChevronsLeft />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            aria-label="หน้าก่อนหน้า"
-          >
-            <ChevronLeft />
-          </Button>
-          <span className="px-3 text-xs text-gray-600">
-            {currentPage} / {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            aria-label="หน้าถัดไป"
-          >
-            <ChevronRight />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={() => setPage(totalPages)}
-            disabled={currentPage === totalPages}
-            aria-label="หน้าสุดท้าย"
-          >
-            <ChevronsRight />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        totalResults={results.length}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

@@ -1,16 +1,26 @@
+import { useState } from "react"
+
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatCurrency } from "@/lib/utils"
 import type { Customer } from "@/types/mock.type"
 
+import { CustomerCreditDetailModal } from "./CustomerCreditDetailModal"
+import { CustomerManagementModal } from "./CustomerManagementModal"
+
 interface CreditSummaryPanelProps {
   customers: Customer[]
+  onEditCreditLimit: (customerId: string, newLimit: number) => void
 }
 
-export function CreditSummaryPanel({ customers }: CreditSummaryPanelProps) {
+export function CreditSummaryPanel({ customers, onEditCreditLimit }: CreditSummaryPanelProps) {
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+
   return (
     <div>
-      <h2 className="text-xs font-semibold text-gray-700 mb-2">วงเงินลูกค้า</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xs font-semibold text-gray-700">วงเงินลูกค้า</h2>
+      </div>
       <div className="space-y-2">
         {customers.map((c) => {
           const remaining = c.creditLimit - c.usedCredit
@@ -20,7 +30,12 @@ export function CreditSummaryPanel({ customers }: CreditSummaryPanelProps) {
             usedPct > 90 ? "bg-red-500" : usedPct > 70 ? "bg-orange-400" : "bg-green-500"
 
           return (
-            <div key={c.customerId} className="p-2 bg-gray-50 rounded-lg">
+            <button
+              key={c.customerId}
+              type="button"
+              onClick={() => setSelectedCustomer(c)}
+              className="w-full text-left p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+            >
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs font-medium text-gray-800 truncate max-w-36">
                   {c.name}
@@ -38,10 +53,18 @@ export function CreditSummaryPanel({ customers }: CreditSummaryPanelProps) {
                 <span>ใช้: {formatCurrency(c.usedCredit)}</span>
                 <span>คงเหลือ: {formatCurrency(remaining)}</span>
               </div>
-            </div>
+            </button>
           )
         })}
       </div>
+
+      <CustomerManagementModal customers={customers} onEditCreditLimit={onEditCreditLimit} />
+
+      <CustomerCreditDetailModal
+        customer={selectedCustomer}
+        open={selectedCustomer !== null}
+        onOpenChange={(open) => { if (!open) setSelectedCustomer(null) }}
+      />
     </div>
   )
 }
