@@ -134,9 +134,15 @@ export function ManualAllocationModal({
             <span className="font-semibold text-blue-800">
               {maxByStock.toLocaleString()}
             </span>
-            <span className="text-blue-600">Credit คงเหลือ (qty)</span>
+            <span className="text-blue-600">Credit คงเหลือ</span>
             <span className="font-semibold text-blue-800">
               {maxByCredit.toLocaleString()}
+
+              {maxByCredit < 1 && (
+                <span className="text-red-500 font-medium ml-1 text-xs">
+                  (ไม่เพียงพอ)
+                </span>
+              )}
             </span>
           </div>
 
@@ -147,6 +153,7 @@ export function ManualAllocationModal({
             <input
               autoFocus
               type="number"
+              disabled={maxByCredit <= 0}
               min={0}
               max={Math.min(maxByStock, maxByCredit)}
               value={value}
@@ -167,7 +174,10 @@ export function ManualAllocationModal({
           <DialogClose asChild>
             <Button variant="outline">ยกเลิก</Button>
           </DialogClose>
-          <Button onClick={handleConfirm} disabled={!!error}>
+          <Button
+            onClick={handleConfirm}
+            disabled={maxByCredit <= 0 || !!error}
+          >
             ยืนยัน
           </Button>
         </div>
