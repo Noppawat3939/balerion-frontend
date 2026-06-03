@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { formatCurrency } from "@/lib/utils";
+import { formatNumber } from "@/lib/utils";
 import type { Customer } from "@/types/mock.type";
 
 interface CustomerCreditDetailModalProps {
@@ -35,7 +35,7 @@ export function CustomerCreditDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="min-w-sm">
         <DialogHeader>
           <DialogTitle className="text-base">ข้อมูล Credit ลูกค้า</DialogTitle>
         </DialogHeader>
@@ -68,21 +68,21 @@ export function CustomerCreditDetailModal({
 
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="rounded-lg bg-gray-50 border border-gray-100 px-2 py-3">
-              <p className="text-xs text-gray-400 mb-1">วงเงินทั้งหมด</p>
+              <p className="text-xs text-gray-400 mb-1">วงเงินทั้งหมด (฿)</p>
               <p className="text-sm font-bold text-gray-700 tabular-nums">
-                {formatCurrency(customer.creditLimit)}
+                {formatNumber(customer.creditLimit)}
               </p>
             </div>
             <div className="rounded-lg bg-orange-50 border border-orange-100 px-2 py-3">
-              <p className="text-xs text-orange-400 mb-1">ใช้แล้ว</p>
+              <p className="text-xs text-orange-400 mb-1">ใช้แล้ว (฿)</p>
               <p className="text-sm font-bold text-orange-700 tabular-nums">
-                {formatCurrency(customer.usedCredit)}
+                {formatNumber(customer.usedCredit)}
               </p>
             </div>
             <div className="rounded-lg bg-blue-50 border border-blue-100 px-2 py-3">
-              <p className="text-xs text-blue-400 mb-1">คงเหลือ</p>
+              <p className="text-xs text-blue-400 mb-1">คงเหลือ (฿)</p>
               <p className="text-sm font-bold text-blue-700 tabular-nums">
-                {formatCurrency(remaining)}
+                {formatNumber(remaining)}
               </p>
             </div>
           </div>

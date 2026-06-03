@@ -1,4 +1,4 @@
-import { type ClassValue,clsx } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import dayjs from "dayjs";
 import { twMerge } from "tailwind-merge";
 
@@ -34,4 +34,11 @@ export function formatCurrency(amount: number): string {
 
 export function formatDate(date: string): string {
   return dayjs(date).format("DD/MM/YYYY HH:mm");
+}
+
+export function formatNumber(amount: number) {
+  return new Intl.NumberFormat("en-EN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
 }

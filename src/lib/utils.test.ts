@@ -1,6 +1,6 @@
 import { describe, expect,it } from "vitest";
 
-import { bankerRound, calculatePricePerUnit, cn, formatCurrency } from "./utils";
+import { bankerRound, calculatePricePerUnit, cn, formatCurrency, formatNumber } from "./utils";
 
 describe("cn", () => {
   it("combines class names", () => {
@@ -126,5 +126,28 @@ describe("formatCurrency", () => {
   it("formats large amounts with thousand separators", () => {
     const result = formatCurrency(50000);
     expect(result).toContain("50,000");
+  });
+});
+
+describe("formatNumber", () => {
+  it("formats positive integer with 2 decimal places", () => {
+    expect(formatNumber(1000)).toBe("1,000.00");
+  });
+
+  it("formats zero", () => {
+    expect(formatNumber(0)).toBe("0.00");
+  });
+
+  it("formats decimal amount with exactly 2 decimal places", () => {
+    expect(formatNumber(123.49)).toBe("123.49");
+  });
+
+  it("formats large amount with thousand separators", () => {
+    expect(formatNumber(50000)).toBe("50,000.00");
+  });
+
+  it("rounds to 2 decimal places", () => {
+    expect(formatNumber(1.005)).toBe("1.01");
+    expect(formatNumber(1.004)).toBe("1.00");
   });
 });
