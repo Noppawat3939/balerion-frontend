@@ -39,7 +39,7 @@ function App() {
           )}
         </main>
 
-        <aside className="w-72 border-l bg-white p-4 flex flex-col gap-5 shrink-0">
+        <aside className="w-72 border-l bg-white p-4 flex flex-col gap-5 shrink-0 overflow-y-auto">
           <StockSummaryPanel stocks={stocks} />
           <div className="border-t border-gray-100" />
           <CreditSummaryPanel
