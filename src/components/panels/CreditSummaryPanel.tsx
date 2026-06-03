@@ -2,15 +2,19 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatCurrency } from "@/lib/utils"
 import type { Customer } from "@/types/mock.type"
+import { CustomerManagementModal } from "./CustomerManagementModal"
 
 interface CreditSummaryPanelProps {
   customers: Customer[]
+  onEditCreditLimit: (customerId: string, newLimit: number) => void
 }
 
-export function CreditSummaryPanel({ customers }: CreditSummaryPanelProps) {
+export function CreditSummaryPanel({ customers, onEditCreditLimit }: CreditSummaryPanelProps) {
   return (
     <div>
-      <h2 className="text-xs font-semibold text-gray-700 mb-2">วงเงินลูกค้า</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xs font-semibold text-gray-700">วงเงินลูกค้า</h2>
+      </div>
       <div className="space-y-2">
         {customers.map((c) => {
           const remaining = c.creditLimit - c.usedCredit
@@ -42,6 +46,7 @@ export function CreditSummaryPanel({ customers }: CreditSummaryPanelProps) {
           )
         })}
       </div>
+      <CustomerManagementModal customers={customers} onEditCreditLimit={onEditCreditLimit} />
     </div>
   )
 }

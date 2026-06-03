@@ -15,6 +15,7 @@ function App() {
     allocated,
     pending,
     updateAllocatedQty,
+    updateCreditLimit,
   } = useAllocation();
 
   return (
@@ -40,7 +41,7 @@ function App() {
         <aside className="w-72 border-l bg-white p-4 flex flex-col gap-5 shrink-0">
           <StockSummaryPanel stocks={liveStocks} />
           <div className="border-t border-gray-100" />
-          <CreditSummaryPanel customers={liveCustomers} />
+          <CreditSummaryPanel customers={liveCustomers} onEditCreditLimit={updateCreditLimit} />
         </aside>
       </div>
     </div>

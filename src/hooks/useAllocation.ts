@@ -25,6 +25,7 @@ interface UseAllocationReturn {
   allocated: number;
   pending: number;
   updateAllocatedQty: (subOrderId: string, newQty: number) => void;
+  updateCreditLimit: (customerId: string, newLimit: number) => void;
 }
 
 export function useAllocation(): UseAllocationReturn {
@@ -32,6 +33,9 @@ export function useAllocation(): UseAllocationReturn {
     AllocationResult[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [customCreditLimits, setCustomCreditLimits] = useState<
+    Record<string, number>
+  >({});
 
   useEffect(() => {
     // defer allocate() so React paints the skeleton before the computation runs
@@ -48,18 +52,30 @@ export function useAllocation(): UseAllocationReturn {
     () => computeRemainingStocks(allocationResults),
     [allocationResults],
   );
-  const liveCustomers = useMemo(
-    () => computeCustomersAfterAllocation(allocationResults),
-    [allocationResults],
-  );
+
+  const liveCustomers = useMemo(() => {
+    const base = computeCustomersAfterAllocation(allocationResults);
+    if (Object.keys(customCreditLimits).length === 0) return base;
+    return base.map((c) =>
+      customCreditLimits[c.customerId] !== undefined
+        ? { ...c, creditLimit: customCreditLimits[c.customerId] }
+        : c,
+    );
+  }, [allocationResults, customCreditLimits]);
 
   const totalOrders = allocationResults.length;
+
   const allocated = allocationResults.filter(
     (r) => r.status === AllocationStatus.FULLY_ALLOCATED,
   ).length;
+
   const pending = allocationResults.filter(
     (r) => r.status !== AllocationStatus.FULLY_ALLOCATED,
   ).length;
+
+  function updateCreditLimit(customerId: string, newLimit: number) {
+    setCustomCreditLimits((prev) => ({ ...prev, [customerId]: newLimit }));
+  }
 
   function updateAllocatedQty(subOrderId: string, newQty: number) {
     setAllocationResults((prev) =>
@@ -86,5 +102,6 @@ export function useAllocation(): UseAllocationReturn {
     allocated,
     pending,
     updateAllocatedQty,
+    updateCreditLimit,
   };
 }
