@@ -20,15 +20,15 @@ import {
 
 interface ManualAllocationModalProps {
   row: AllocationResult;
-  liveStocks: Stock[];
-  liveCustomers: Customer[];
+  stocks: Stock[];
+  customers: Customer[];
   onUpdate: (subOrderId: string, newQty: number) => void;
 }
 
 export function ManualAllocationModal({
   row,
-  liveStocks,
-  liveCustomers,
+  stocks,
+  customers,
   onUpdate,
 }: ManualAllocationModalProps) {
   const [open, setOpen] = useState(false);
@@ -36,12 +36,12 @@ export function ManualAllocationModal({
   const [error, setError] = useState<string | null>(null);
 
   const stockKey = `${row.resolvedWarehouseId}|${row.resolvedSupplierId}|${row.itemId}`;
-  const liveStock = liveStocks.find(
+  const liveStock = stocks.find(
     (s) => `${s.warehouseId}|${s.supplierId}|${s.itemId}` === stockKey,
   );
   const maxByStock = (liveStock?.availableStock ?? 0) + row.allocatedQty;
 
-  const liveCustomer = liveCustomers.find((c) => c.customerId === row.customerId);
+  const liveCustomer = customers.find((c) => c.customerId === row.customerId);
   const availableCredit = liveCustomer
     ? liveCustomer.creditLimit - liveCustomer.usedCredit + row.totalPrice
     : 0;
@@ -88,7 +88,10 @@ export function ManualAllocationModal({
   }
 
   const formatCurrency = (n: number) =>
-    n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    n.toLocaleString("th-TH", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -109,20 +112,32 @@ export function ManualAllocationModal({
             <span className="text-gray-500">Item</span>
             <span className="font-medium text-gray-800">{row.itemId}</span>
             <span className="text-gray-500">Warehouse</span>
-            <span className="font-medium text-gray-800">{row.resolvedWarehouseId}</span>
+            <span className="font-medium text-gray-800">
+              {row.resolvedWarehouseId}
+            </span>
             <span className="text-gray-500">Supplier</span>
-            <span className="font-medium text-gray-800">{row.resolvedSupplierId}</span>
+            <span className="font-medium text-gray-800">
+              {row.resolvedSupplierId}
+            </span>
             <span className="text-gray-500">Request Qty</span>
-            <span className="font-medium text-gray-800">{row.requestQty.toLocaleString()}</span>
+            <span className="font-medium text-gray-800">
+              {row.requestQty.toLocaleString()}
+            </span>
             <span className="text-gray-500">Unit Price</span>
-            <span className="font-medium text-gray-800">฿{formatCurrency(row.unitPrice)}</span>
+            <span className="font-medium text-gray-800">
+              ฿{formatCurrency(row.unitPrice)}
+            </span>
           </div>
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm">
             <span className="text-blue-600">Stock คงเหลือ</span>
-            <span className="font-semibold text-blue-800">{maxByStock.toLocaleString()}</span>
+            <span className="font-semibold text-blue-800">
+              {maxByStock.toLocaleString()}
+            </span>
             <span className="text-blue-600">Credit คงเหลือ (qty)</span>
-            <span className="font-semibold text-blue-800">{maxByCredit.toLocaleString()}</span>
+            <span className="font-semibold text-blue-800">
+              {maxByCredit.toLocaleString()}
+            </span>
           </div>
 
           <div className="space-y-1.5">
@@ -144,9 +159,7 @@ export function ManualAllocationModal({
                   : "border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200",
               )}
             />
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
+            {error && <p className="text-xs text-red-500">{error}</p>}
           </div>
         </div>
 

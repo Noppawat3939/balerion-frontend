@@ -19,14 +19,16 @@ import {
 interface UseAllocationReturn {
   isLoading: boolean;
   allocationResults: AllocationResult[];
-  liveStocks: Stock[];
-  liveCustomers: Customer[];
+  stocks: Stock[];
+  customers: Customer[];
   totalOrders: number;
   allocated: number;
   pending: number;
   updateAllocatedQty: (subOrderId: string, newQty: number) => void;
   updateCreditLimit: (customerId: string, newLimit: number) => void;
 }
+
+const CUSTOMER_CREDIT_LIMIT_KEY = "customCreditLimits" as const;
 
 export function useAllocation(): UseAllocationReturn {
   const [allocationResults, setAllocationResults] = useState<
@@ -37,7 +39,7 @@ export function useAllocation(): UseAllocationReturn {
     Record<string, number>
   >(() => {
     try {
-      const stored = sessionStorage.getItem("customCreditLimits");
+      const stored = sessionStorage.getItem(CUSTOMER_CREDIT_LIMIT_KEY);
       return stored ? (JSON.parse(stored) as Record<string, number>) : {};
     } catch {
       return {};
@@ -55,12 +57,12 @@ export function useAllocation(): UseAllocationReturn {
     return () => clearTimeout(id);
   }, []);
 
-  const liveStocks = useMemo(
+  const stocks = useMemo(
     () => computeRemainingStocks(allocationResults),
     [allocationResults],
   );
 
-  const liveCustomers = useMemo(() => {
+  const customers = useMemo(() => {
     const base = computeCustomersAfterAllocation(allocationResults);
     if (Object.keys(customCreditLimits).length === 0) return base;
     return base.map((c) =>
@@ -82,9 +84,12 @@ export function useAllocation(): UseAllocationReturn {
 
   function updateCreditLimit(customerId: string, newLimit: number) {
     setCustomCreditLimits((prev) => {
-      const next = { ...prev, [customerId]: newLimit };
-      sessionStorage.setItem("customCreditLimits", JSON.stringify(next));
-      return next;
+      const updated = { ...prev, [customerId]: newLimit };
+      sessionStorage.setItem(
+        CUSTOMER_CREDIT_LIMIT_KEY,
+        JSON.stringify(updated),
+      );
+      return updated;
     });
   }
 
@@ -105,13 +110,13 @@ export function useAllocation(): UseAllocationReturn {
   }
 
   return {
-    isLoading,
-    allocationResults,
-    liveStocks,
-    liveCustomers,
-    totalOrders,
     allocated,
+    allocationResults,
+    customers,
+    isLoading,
     pending,
+    stocks,
+    totalOrders,
     updateAllocatedQty,
     updateCreditLimit,
   };

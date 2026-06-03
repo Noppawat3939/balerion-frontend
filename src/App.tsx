@@ -9,8 +9,8 @@ function App() {
   const {
     isLoading,
     allocationResults,
-    liveStocks,
-    liveCustomers,
+    stocks,
+    customers,
     totalOrders,
     allocated,
     pending,
@@ -32,16 +32,20 @@ function App() {
           ) : (
             <AllocationTable
               results={allocationResults}
-              customers={liveCustomers}
-              liveStocks={liveStocks}
+              customers={customers}
+              stocks={stocks}
               onUpdateAllocatedQty={updateAllocatedQty}
             />
           )}
         </main>
+
         <aside className="w-72 border-l bg-white p-4 flex flex-col gap-5 shrink-0">
-          <StockSummaryPanel stocks={liveStocks} />
+          <StockSummaryPanel stocks={stocks} />
           <div className="border-t border-gray-100" />
-          <CreditSummaryPanel customers={liveCustomers} onEditCreditLimit={updateCreditLimit} />
+          <CreditSummaryPanel
+            customers={customers}
+            onEditCreditLimit={updateCreditLimit}
+          />
         </aside>
       </div>
     </div>

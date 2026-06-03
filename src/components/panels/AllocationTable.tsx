@@ -59,14 +59,14 @@ function formatCurrency(amount: number): string {
 interface AllocationTableProps {
   results: AllocationResult[];
   customers: Customer[];
-  liveStocks: Stock[];
+  stocks: Stock[];
   onUpdateAllocatedQty: (subOrderId: string, newQty: number) => void;
 }
 
 export function AllocationTable({
   results,
   customers,
-  liveStocks,
+  stocks,
   onUpdateAllocatedQty,
 }: AllocationTableProps) {
   const [page, setPage] = useState(1);
@@ -164,8 +164,8 @@ export function AllocationTable({
                   <TableCell>
                     <ManualAllocationModal
                       row={row}
-                      liveStocks={liveStocks}
-                      liveCustomers={customers}
+                      stocks={stocks}
+                      customers={customers}
                       onUpdate={onUpdateAllocatedQty}
                     />
                   </TableCell>
