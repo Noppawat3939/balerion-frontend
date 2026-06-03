@@ -49,6 +49,8 @@ function CustomerRow({ customer, onSave }: CustomerRowProps) {
     const n = Number(val);
     if (val === "" || isNaN(n) || n < 0) return "ต้องเป็นจำนวนเต็ม ≥ 0";
     if (!Number.isInteger(n)) return "ต้องเป็นจำนวนเต็ม";
+    if (n < customer.usedCredit)
+      return `ต้องไม่น้อยกว่าที่ใช้ไปแล้ว (${formatCurrency(customer.usedCredit)})`;
     return null;
   }
 
@@ -83,9 +85,6 @@ function CustomerRow({ customer, onSave }: CustomerRowProps) {
     if (e.key === "Escape") handleCancel();
   }
 
-  const newLimit = Number(value);
-  const showWarning =
-    editing && !error && !isNaN(newLimit) && newLimit < customer.usedCredit;
 
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -170,13 +169,6 @@ function CustomerRow({ customer, onSave }: CustomerRowProps) {
             </Button>
           </div>
           {error && <p className="text-xs text-red-500">{error}</p>}
-          {showWarning && (
-            <p className="text-xs text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-1.5">
-              ⚠️ Credit limit ใหม่ ({formatCurrency(newLimit)})
-              ต่ำกว่าที่ใช้ไปแล้ว ({formatCurrency(customer.usedCredit)}) —
-              allocation ที่เกินจะถูก highlight
-            </p>
-          )}
         </div>
       ) : (
         <div className="flex justify-end">
