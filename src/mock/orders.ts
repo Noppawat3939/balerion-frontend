@@ -88,4 +88,4 @@ const baseOrders: Order[] = [
   },
 ];
 
-export const orders: Order[] = [...baseOrders, ...generateOrders(10)];
+export const orders: Order[] = [...baseOrders, ...generateOrders(5000)];

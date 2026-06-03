@@ -72,15 +72,15 @@ export function useAllocation(): UseAllocationReturn {
     );
   }, [allocationResults, customCreditLimits]);
 
-  const totalOrders = allocationResults.length;
-
-  const allocated = allocationResults.filter(
-    (r) => r.status === AllocationStatus.FULLY_ALLOCATED,
-  ).length;
-
-  const pending = allocationResults.filter(
-    (r) => r.status !== AllocationStatus.FULLY_ALLOCATED,
-  ).length;
+  const { totalOrders, allocated, pending } = useMemo(() => {
+    let allocated = 0;
+    let pending = 0;
+    for (const r of allocationResults) {
+      if (r.status === AllocationStatus.FULLY_ALLOCATED) allocated++;
+      else pending++;
+    }
+    return { totalOrders: allocationResults.length, allocated, pending };
+  }, [allocationResults]);
 
   function updateCreditLimit(customerId: string, newLimit: number) {
     setCustomCreditLimits((prev) => {
