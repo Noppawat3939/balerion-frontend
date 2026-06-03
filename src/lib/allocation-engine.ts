@@ -56,6 +56,7 @@ export function allocate(
       { ...s },
     ]),
   );
+
   const customerMap = new Map<string, Customer>(
     customers.map((c) => [c.customerId, { ...c }]),
   );
